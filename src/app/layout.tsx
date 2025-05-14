@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'QR Direct Download Generator',
+  title: 'Alatar QR Generator',
   description: 'Generate QR codes for direct Google Drive file downloads.',
 };
 

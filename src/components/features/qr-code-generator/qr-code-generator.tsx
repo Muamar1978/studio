@@ -81,7 +81,7 @@ export function QrCodeGenerator() {
     if (!qrCodeDataUrl) return;
     const link = document.createElement('a');
     link.href = qrCodeDataUrl;
-    link.download = 'qrdrive-qrcode.png';
+    link.download = 'alatar-qrcode.png';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -92,10 +92,10 @@ export function QrCodeGenerator() {
       <CardHeader className="text-center">
         <div className="inline-flex items-center justify-center gap-2 mb-2">
           <QrCodeIcon className="w-8 h-8 text-primary" />
-          <CardTitle className="text-3xl font-bold">QR Direct Download Generator</CardTitle>
+          <CardTitle className="text-3xl font-bold">Alatar QR Generator</CardTitle>
         </div>
         <CardDescription className="text-muted-foreground">
-          develop by Muamar Almani , NTU, 2025.
+          Developed by Muamar Almani , NTU, 2025.
         </CardDescription>
       </CardHeader>
       <CardContent>
