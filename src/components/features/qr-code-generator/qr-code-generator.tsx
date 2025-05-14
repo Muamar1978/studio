@@ -95,7 +95,7 @@ export function QrCodeGenerator() {
           <CardTitle className="text-3xl font-bold">QR Direct Download Generator</CardTitle>
         </div>
         <CardDescription className="text-muted-foreground">
-          Convert Google Drive links to direct download QR codes.
+          develop by Muamar Almani , NTU, 2025.
         </CardDescription>
       </CardHeader>
       <CardContent>
