@@ -64,10 +64,10 @@ export function QrCodeGenerator() {
     try {
       const qrSize = 256;
       const baseQrDataUrl = await QRCode.toDataURL(newDirectLink, {
-        errorCorrectionLevel: 'H', // High error correction for logo overlay
+        errorCorrectionLevel: 'H', 
         type: 'image/png',
         width: qrSize,
-        margin: 1, // Adjust margin for better logo fit
+        margin: 1, 
         color: {
           dark: qrForegroundColor, 
           light: qrBackgroundColor,
@@ -92,27 +92,42 @@ export function QrCodeGenerator() {
 
         // Logo properties
         const logoText = "TECK";
-        const logoDiameter = qrSize * 0.25; 
-        const logoRadius = logoDiameter / 2;
+        const logoVisualDiameterFactor = 0.25; // Defines the size of the TECK circle (text background + border)
+        const logoVisualDiameter = qrSize * logoVisualDiameterFactor;
+        const logoVisualRadius = logoVisualDiameter / 2;
+        
+        const paddingAroundLogoVisual = 6; // The 6px white padding around the logo's border
+        const totalClearRadius = logoVisualRadius + paddingAroundLogoVisual; // Total radius for clearing QR code
+
         const centerX = qrSize / 2;
         const centerY = qrSize / 2;
 
-        // Draw white circular background for the logo
+        // 1. Clear a larger circular area for the logo AND its surrounding white padding.
+        // This circle is filled white, overwriting the QR code in this zone.
         ctx.beginPath();
-        ctx.arc(centerX, centerY, logoRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; // Logo background remains white
+        ctx.arc(centerX, centerY, totalClearRadius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = 'white'; // This provides the "white padding"
         ctx.fill();
         
+        // 2. Draw the logo's actual background (the smaller circle that will contain the text).
+        // This circle also has a white fill, and then a border.
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, logoVisualRadius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = 'white'; // Logo background remains white for the text area
+        ctx.fill();
+        
+        // 3. Draw border for the logo's text background circle
         ctx.strokeStyle = '#333'; // Dark grey border for logo circle
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        const fontSize = logoDiameter * 0.35; 
+        // 4. Draw Text
+        const fontSizeFactor = 0.35; // Font size relative to the logoVisualDiameter
+        const fontSize = logoVisualDiameter * fontSizeFactor; 
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
         ctx.fillStyle = 'black'; // Logo text remains black
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-
         ctx.fillText(logoText, centerX, centerY);
         
         setQrCodeDataUrl(canvas.toDataURL('image/png'));
