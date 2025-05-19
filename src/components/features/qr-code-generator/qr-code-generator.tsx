@@ -103,10 +103,10 @@ export function QrCodeGenerator() {
         const centerY = qrSize / 2;
 
         // 1. Clear a larger circular area for the logo AND its surrounding white padding.
-        // This area will use the user-selected QR background color for seamless integration if the QR background is not white.
+        // This area will be white.
         ctx.beginPath();
         ctx.arc(centerX, centerY, totalClearRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = qrBackgroundColor; 
+        ctx.fillStyle = 'white'; 
         ctx.fill();
         
         // 2. Draw the logo's actual background (the smaller circle that will contain the text).
