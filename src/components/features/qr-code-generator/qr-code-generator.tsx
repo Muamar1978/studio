@@ -18,7 +18,7 @@ export function QrCodeGenerator() {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [qrForegroundColor, setQrForegroundColor] = useState<string>('#000000');
-  const [qrBackgroundColor, setQrBackgroundColor] = useState<string>('#FFFFFF');
+  const qrBackgroundColor = '#FFFFFF'; // Default to white background
 
   const extractFileId = (url: string): string | null => {
     try {
@@ -70,7 +70,7 @@ export function QrCodeGenerator() {
         margin: 1, 
         color: {
           dark: qrForegroundColor, 
-          light: qrBackgroundColor,
+          light: qrBackgroundColor, // Use fixed white background
         }
       });
 
@@ -106,7 +106,7 @@ export function QrCodeGenerator() {
         // This area will be white.
         ctx.beginPath();
         ctx.arc(centerX, centerY, totalClearRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; 
+        ctx.fillStyle = 'white'; // Ensure padding area is white
         ctx.fill();
         
         // 2. Draw the logo's actual background (the smaller circle that will contain the text).
@@ -184,31 +184,18 @@ export function QrCodeGenerator() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="qr-foreground-color">QR Foreground Color</Label>
-              <Input
-                id="qr-foreground-color"
-                type="color"
-                value={qrForegroundColor}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setQrForegroundColor(e.target.value)}
-                className="w-full h-10 p-1"
-                aria-label="QR Code Foreground Color Picker"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="qr-background-color">QR Background Color</Label>
-              <Input
-                id="qr-background-color"
-                type="color"
-                value={qrBackgroundColor}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setQrBackgroundColor(e.target.value)}
-                className="w-full h-10 p-1"
-                aria-label="QR Code Background Color Picker"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="qr-foreground-color">QR Foreground Color</Label>
+            <Input
+              id="qr-foreground-color"
+              type="color"
+              value={qrForegroundColor}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setQrForegroundColor(e.target.value)}
+              className="w-full h-10 p-1"
+              aria-label="QR Code Foreground Color Picker"
+            />
           </div>
-
+          
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
