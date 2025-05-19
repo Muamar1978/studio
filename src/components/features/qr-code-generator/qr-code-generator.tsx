@@ -121,11 +121,11 @@ export function QrCodeGenerator() {
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        // 4. Draw Text - Use black color for the logo text
+        // 4. Draw Text - Use selected foreground color for the logo text
         const fontSizeFactor = 0.35; 
         const fontSize = logoVisualDiameter * fontSizeFactor; 
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        ctx.fillStyle = '#000000'; // Set logo text color to black
+        ctx.fillStyle = qrForegroundColor; // Set logo text color to selected foreground color
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(logoText, centerX, centerY);
