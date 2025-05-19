@@ -91,7 +91,7 @@ export function QrCodeGenerator() {
         ctx.drawImage(qrImg, 0, 0, qrSize, qrSize);
 
         // Logo properties
-        const logoText = "NTU"; // Changed from TECK to NTU
+        const logoText = "NTU"; 
         const logoVisualDiameterFactor = 0.25; 
         const logoVisualDiameter = qrSize * logoVisualDiameterFactor;
         const logoVisualRadius = logoVisualDiameter / 2;
@@ -103,12 +103,14 @@ export function QrCodeGenerator() {
         const centerY = qrSize / 2;
 
         // 1. Clear a larger circular area for the logo AND its surrounding white padding.
+        // This area will use the user-selected QR background color for seamless integration if the QR background is not white.
         ctx.beginPath();
         ctx.arc(centerX, centerY, totalClearRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; 
+        ctx.fillStyle = qrBackgroundColor; 
         ctx.fill();
         
         // 2. Draw the logo's actual background (the smaller circle that will contain the text).
+        // This remains white for logo clarity.
         ctx.beginPath();
         ctx.arc(centerX, centerY, logoVisualRadius, 0, 2 * Math.PI, false);
         ctx.fillStyle = 'white'; 
@@ -119,11 +121,11 @@ export function QrCodeGenerator() {
         ctx.lineWidth = 1;
         ctx.stroke();
         
-        // 4. Draw Text
+        // 4. Draw Text - Use selected QR foreground color for the text
         const fontSizeFactor = 0.35; 
         const fontSize = logoVisualDiameter * fontSizeFactor; 
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        ctx.fillStyle = 'black'; 
+        ctx.fillStyle = qrForegroundColor; // Use selected foreground color for the logo text
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(logoText, centerX, centerY);
@@ -149,7 +151,7 @@ export function QrCodeGenerator() {
     if (!qrCodeDataUrl) return;
     const link = document.createElement('a');
     link.href = qrCodeDataUrl;
-    link.download = 'alatar-qrcode-ntu.png'; // Changed filename
+    link.download = 'alatar-qrcode-ntu.png'; 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -234,7 +236,7 @@ export function QrCodeGenerator() {
             <div className="flex justify-center">
               <Image 
                 src={qrCodeDataUrl} 
-                alt="Generated QR Code with NTU logo"  // Changed alt text
+                alt="Generated QR Code with NTU logo" 
                 width={256} 
                 height={256} 
                 className="rounded-md shadow-md border-2 border-primary p-1 bg-white"
