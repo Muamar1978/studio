@@ -106,7 +106,7 @@ export function QrCodeGenerator() {
         ctx.stroke(); // Stroke the same circular path
         
         // Text properties
-        const fontSize = logoDiameter * 0.4; // Dynamically size font based on logo area
+        const fontSize = logoDiameter * 0.35; // Dynamically size font based on logo area (reduced from 0.4)
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
         ctx.fillStyle = 'black'; // Text color
         ctx.textAlign = 'center';
