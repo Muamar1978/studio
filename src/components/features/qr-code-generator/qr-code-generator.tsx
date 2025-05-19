@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { QrCode as QrCodeIcon, Download, Save, AlertCircle, ExternalLink } from "lucide-react";
+import { QrCode as QrCodeIcon, Download, Save, AlertCircle } from "lucide-react";
 import Image from 'next/image';
 
 export function QrCodeGenerator() {
@@ -22,17 +23,13 @@ export function QrCodeGenerator() {
       if (parsedUrl.hostname !== 'drive.google.com') {
         return null;
       }
-
-      // Regex to find file ID from various GDrive URL formats
       const regex = /\/file\/d\/([a-zA-Z0-9_-]+)|[?&]id=([a-zA-Z0-9_-]+)/;
       const match = url.match(regex);
-
       if (match) {
         return match[1] || match[2] || null;
       }
       return null;
     } catch (e) {
-      // Invalid URL
       return null;
     }
   };
@@ -62,17 +59,72 @@ export function QrCodeGenerator() {
     setDirectLink(newDirectLink);
 
     try {
-      const dataUrl = await QRCode.toDataURL(newDirectLink, {
-        errorCorrectionLevel: 'H',
+      const qrSize = 256;
+      const baseQrDataUrl = await QRCode.toDataURL(newDirectLink, {
+        errorCorrectionLevel: 'H', // High error correction for logo overlay
         type: 'image/png',
-        width: 256,
-        margin: 2,
+        width: qrSize,
+        margin: 1, // Adjust margin for better logo fit
+        color: {
+          dark: '#000000FF', // QR code color
+          light: '#FFFFFFFF', // Background color
+        }
       });
-      setQrCodeDataUrl(dataUrl);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = qrSize;
+      canvas.height = qrSize;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        setError('Failed to get canvas context for adding logo.');
+        setIsLoading(false);
+        return;
+      }
+
+      const qrImg = new window.Image();
+      qrImg.onload = () => {
+        // Draw base QR code
+        ctx.drawImage(qrImg, 0, 0, qrSize, qrSize);
+
+        // Logo properties
+        const logoText = "TECK";
+        const logoBgSize = qrSize * 0.25; // Logo background area (e.g., 25% of QR width)
+        const logoX = (qrSize - logoBgSize) / 2;
+        const logoY = (qrSize - logoBgSize) / 2;
+
+        // Draw white background for the logo
+        ctx.fillStyle = 'white';
+        ctx.fillRect(logoX, logoY, logoBgSize, logoBgSize);
+
+        // Optional: Add a thin border to the logo background
+        ctx.strokeStyle = '#333'; // Dark grey border for the logo background
+        ctx.lineWidth = 1;
+        ctx.strokeRect(logoX + ctx.lineWidth / 2, logoY + ctx.lineWidth / 2, logoBgSize - ctx.lineWidth, logoBgSize - ctx.lineWidth);
+        
+        // Text properties
+        const fontSize = logoBgSize * 0.4; // Dynamically size font based on logo area
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        ctx.fillStyle = 'black'; // Text color
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Draw text in the center of the logo background
+        ctx.fillText(logoText, qrSize / 2, qrSize / 2);
+        
+        setQrCodeDataUrl(canvas.toDataURL('image/png'));
+        setIsLoading(false);
+      };
+      qrImg.onerror = () => {
+        console.error('Failed to load QR image for logo overlay.');
+        setError('Failed to process QR image for logo. Please try again.');
+        setIsLoading(false);
+      };
+      qrImg.src = baseQrDataUrl;
+
     } catch (err) {
-      console.error('QR Code generation failed:', err);
+      console.error('QR Code generation or logo processing failed:', err);
       setError('Failed to generate QR code. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -81,7 +133,7 @@ export function QrCodeGenerator() {
     if (!qrCodeDataUrl) return;
     const link = document.createElement('a');
     link.href = qrCodeDataUrl;
-    link.download = 'alatar-qrcode.png';
+    link.download = 'alatar-qrcode-teck.png'; // Updated filename
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -95,7 +147,7 @@ export function QrCodeGenerator() {
           <CardTitle className="text-3xl font-bold">Alatar QR Generator</CardTitle>
         </div>
         <CardDescription className="text-muted-foreground">
-          Developed by Muamar Almani , MIE Department, TECK, NTU, 2025.
+          Developed by Muamar Almani, MIE Department, TECK, NTU, 2025.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -140,11 +192,11 @@ export function QrCodeGenerator() {
             <div className="flex justify-center">
               <Image 
                 src={qrCodeDataUrl} 
-                alt="Generated QR Code" 
+                alt="Generated QR Code with TECK logo" 
                 width={256} 
                 height={256} 
                 className="rounded-md shadow-md border-2 border-primary p-1 bg-white"
-                data-ai-hint="qr code" 
+                data-ai-hint="qr code logo" 
               />
             </div>
             <p className="text-xs text-muted-foreground break-all">
