@@ -89,28 +89,31 @@ export function QrCodeGenerator() {
 
         // Logo properties
         const logoText = "TECK";
-        const logoBgSize = qrSize * 0.25; // Logo background area (e.g., 25% of QR width)
-        const logoX = (qrSize - logoBgSize) / 2;
-        const logoY = (qrSize - logoBgSize) / 2;
+        const logoDiameter = qrSize * 0.25; // Diameter of the circular logo background
+        const logoRadius = logoDiameter / 2;
+        const centerX = qrSize / 2;
+        const centerY = qrSize / 2;
 
-        // Draw white background for the logo
+        // Draw white circular background for the logo
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, logoRadius, 0, 2 * Math.PI, false);
         ctx.fillStyle = 'white';
-        ctx.fillRect(logoX, logoY, logoBgSize, logoBgSize);
+        ctx.fill();
 
         // Optional: Add a thin border to the logo background
-        ctx.strokeStyle = '#333'; // Dark grey border for the logo background
+        ctx.strokeStyle = '#333'; // Dark grey border
         ctx.lineWidth = 1;
-        ctx.strokeRect(logoX + ctx.lineWidth / 2, logoY + ctx.lineWidth / 2, logoBgSize - ctx.lineWidth, logoBgSize - ctx.lineWidth);
+        ctx.stroke(); // Stroke the same circular path
         
         // Text properties
-        const fontSize = logoBgSize * 0.4; // Dynamically size font based on logo area
+        const fontSize = logoDiameter * 0.4; // Dynamically size font based on logo area
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
         ctx.fillStyle = 'black'; // Text color
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         // Draw text in the center of the logo background
-        ctx.fillText(logoText, qrSize / 2, qrSize / 2);
+        ctx.fillText(logoText, centerX, centerY);
         
         setQrCodeDataUrl(canvas.toDataURL('image/png'));
         setIsLoading(false);
@@ -133,7 +136,7 @@ export function QrCodeGenerator() {
     if (!qrCodeDataUrl) return;
     const link = document.createElement('a');
     link.href = qrCodeDataUrl;
-    link.download = 'alatar-qrcode-teck.png'; // Updated filename
+    link.download = 'alatar-qrcode-teck.png';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
