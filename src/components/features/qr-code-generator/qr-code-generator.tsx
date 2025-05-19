@@ -18,7 +18,7 @@ export function QrCodeGenerator() {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [qrForegroundColor, setQrForegroundColor] = useState<string>('#000000');
-  const qrBackgroundColor = '#FFFFFF'; // Default to white background
+  const qrBackgroundColor = '#FFFFFF'; // Fixed white background
 
   const extractFileId = (url: string): string | null => {
     try {
@@ -70,7 +70,7 @@ export function QrCodeGenerator() {
         margin: 1, 
         color: {
           dark: qrForegroundColor, 
-          light: qrBackgroundColor, // Use fixed white background
+          light: qrBackgroundColor,
         }
       });
 
@@ -106,7 +106,7 @@ export function QrCodeGenerator() {
         // This area will be white.
         ctx.beginPath();
         ctx.arc(centerX, centerY, totalClearRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; // Ensure padding area is white
+        ctx.fillStyle = 'white'; 
         ctx.fill();
         
         // 2. Draw the logo's actual background (the smaller circle that will contain the text).
@@ -124,8 +124,8 @@ export function QrCodeGenerator() {
         // 4. Draw Text - Use selected foreground color for the logo text
         const fontSizeFactor = 0.35; 
         const fontSize = logoVisualDiameter * fontSizeFactor; 
-        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        ctx.fillStyle = qrForegroundColor; // Set logo text color to selected foreground color
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`; // Made text bold
+        ctx.fillStyle = qrForegroundColor; 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(logoText, centerX, centerY);
