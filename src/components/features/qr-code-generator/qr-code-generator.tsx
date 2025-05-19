@@ -91,41 +91,39 @@ export function QrCodeGenerator() {
         ctx.drawImage(qrImg, 0, 0, qrSize, qrSize);
 
         // Logo properties
-        const logoText = "TECK";
-        const logoVisualDiameterFactor = 0.25; // Defines the size of the TECK circle (text background + border)
+        const logoText = "NTU"; // Changed from TECK to NTU
+        const logoVisualDiameterFactor = 0.25; 
         const logoVisualDiameter = qrSize * logoVisualDiameterFactor;
         const logoVisualRadius = logoVisualDiameter / 2;
         
-        const paddingAroundLogoVisual = 6; // The 6px white padding around the logo's border
-        const totalClearRadius = logoVisualRadius + paddingAroundLogoVisual; // Total radius for clearing QR code
+        const paddingAroundLogoVisual = 6; 
+        const totalClearRadius = logoVisualRadius + paddingAroundLogoVisual; 
 
         const centerX = qrSize / 2;
         const centerY = qrSize / 2;
 
         // 1. Clear a larger circular area for the logo AND its surrounding white padding.
-        // This circle is filled white, overwriting the QR code in this zone.
         ctx.beginPath();
         ctx.arc(centerX, centerY, totalClearRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; // This provides the "white padding"
+        ctx.fillStyle = 'white'; 
         ctx.fill();
         
         // 2. Draw the logo's actual background (the smaller circle that will contain the text).
-        // This circle also has a white fill, and then a border.
         ctx.beginPath();
         ctx.arc(centerX, centerY, logoVisualRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; // Logo background remains white for the text area
+        ctx.fillStyle = 'white'; 
         ctx.fill();
         
         // 3. Draw border for the logo's text background circle
-        ctx.strokeStyle = '#333'; // Dark grey border for logo circle
+        ctx.strokeStyle = '#333'; 
         ctx.lineWidth = 1;
         ctx.stroke();
         
         // 4. Draw Text
-        const fontSizeFactor = 0.35; // Font size relative to the logoVisualDiameter
+        const fontSizeFactor = 0.35; 
         const fontSize = logoVisualDiameter * fontSizeFactor; 
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        ctx.fillStyle = 'black'; // Logo text remains black
+        ctx.fillStyle = 'black'; 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(logoText, centerX, centerY);
@@ -151,7 +149,7 @@ export function QrCodeGenerator() {
     if (!qrCodeDataUrl) return;
     const link = document.createElement('a');
     link.href = qrCodeDataUrl;
-    link.download = 'alatar-qrcode-teck.png';
+    link.download = 'alatar-qrcode-ntu.png'; // Changed filename
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -236,7 +234,7 @@ export function QrCodeGenerator() {
             <div className="flex justify-center">
               <Image 
                 src={qrCodeDataUrl} 
-                alt="Generated QR Code with TECK logo" 
+                alt="Generated QR Code with NTU logo"  // Changed alt text
                 width={256} 
                 height={256} 
                 className="rounded-md shadow-md border-2 border-primary p-1 bg-white"
