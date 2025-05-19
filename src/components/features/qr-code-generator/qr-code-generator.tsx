@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
 import { QrCode as QrCodeIcon, Download, Save, AlertCircle } from "lucide-react";
 import Image from 'next/image';
 
@@ -16,6 +17,8 @@ export function QrCodeGenerator() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [qrForegroundColor, setQrForegroundColor] = useState<string>('#000000');
+  const [qrBackgroundColor, setQrBackgroundColor] = useState<string>('#FFFFFF');
 
   const extractFileId = (url: string): string | null => {
     try {
@@ -66,8 +69,8 @@ export function QrCodeGenerator() {
         width: qrSize,
         margin: 1, // Adjust margin for better logo fit
         color: {
-          dark: '#000000FF', // QR code color
-          light: '#FFFFFFFF', // Background color
+          dark: qrForegroundColor, 
+          light: qrBackgroundColor,
         }
       });
 
@@ -89,7 +92,7 @@ export function QrCodeGenerator() {
 
         // Logo properties
         const logoText = "TECK";
-        const logoDiameter = qrSize * 0.25; // Diameter of the circular logo background
+        const logoDiameter = qrSize * 0.25; 
         const logoRadius = logoDiameter / 2;
         const centerX = qrSize / 2;
         const centerY = qrSize / 2;
@@ -97,22 +100,19 @@ export function QrCodeGenerator() {
         // Draw white circular background for the logo
         ctx.beginPath();
         ctx.arc(centerX, centerY, logoRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = 'white'; // Logo background remains white
         ctx.fill();
-
-        // Optional: Add a thin border to the logo background
-        ctx.strokeStyle = '#333'; // Dark grey border
-        ctx.lineWidth = 1;
-        ctx.stroke(); // Stroke the same circular path
         
-        // Text properties
-        const fontSize = logoDiameter * 0.35; // Dynamically size font based on logo area (reduced from 0.4)
+        ctx.strokeStyle = '#333'; // Dark grey border for logo circle
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        const fontSize = logoDiameter * 0.35; 
         ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        ctx.fillStyle = 'black'; // Text color
+        ctx.fillStyle = 'black'; // Logo text remains black
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Draw text in the center of the logo background
         ctx.fillText(logoText, centerX, centerY);
         
         setQrCodeDataUrl(canvas.toDataURL('image/png'));
@@ -156,7 +156,7 @@ export function QrCodeGenerator() {
       <CardContent>
         <form onSubmit={generateQrCode} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="gdrive-link" className="text-sm font-medium">Google Drive File Link</label>
+            <Label htmlFor="gdrive-link">Google Drive File Link</Label>
             <Input
               id="gdrive-link"
               type="url"
@@ -168,6 +168,32 @@ export function QrCodeGenerator() {
               className="focus:ring-primary focus:border-primary"
             />
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="qr-foreground-color">QR Foreground Color</Label>
+              <Input
+                id="qr-foreground-color"
+                type="color"
+                value={qrForegroundColor}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setQrForegroundColor(e.target.value)}
+                className="w-full h-10 p-1"
+                aria-label="QR Code Foreground Color Picker"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="qr-background-color">QR Background Color</Label>
+              <Input
+                id="qr-background-color"
+                type="color"
+                value={qrBackgroundColor}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setQrBackgroundColor(e.target.value)}
+                className="w-full h-10 p-1"
+                aria-label="QR Code Background Color Picker"
+              />
+            </div>
+          </div>
+
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
