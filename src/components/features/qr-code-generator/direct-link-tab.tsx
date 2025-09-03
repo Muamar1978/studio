@@ -141,7 +141,7 @@ export function DirectLinkTab({ onQrGenerated, qrCodeDataUrl, directLink }: Dire
     <div className="pt-6">
       <form onSubmit={generateQrCode} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="file-link">Direct File Link (e.g., to a PDF)</Label>
+          <Label htmlFor="file-link">Direct File Link (e.g., to a PDF, image, etc.)</Label>
           <Input
             id="file-link"
             type="url"
