@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { QrCode as QrCodeIcon, Link, File } from "lucide-react";
+import { QrCode as QrCodeIcon, Link as LinkIcon, FileText } from "lucide-react";
 import { GoogleDriveTab } from './google-drive-tab';
 import { WebsiteUrlTab } from './website-url-tab';
 
@@ -37,11 +37,11 @@ export function QrCodeGenerator() {
         <Tabs defaultValue="gdrive" className="w-full" onValueChange={handleReset}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="gdrive">
-              <Link className="mr-2 h-4 w-4" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="m10.4 12.6-2.8 5.2"></path><path d="m16.8 17.8-2.8-5.2"></path><path d="m11.25 15.2 4.5 0"></path></svg>
               Google Drive
             </TabsTrigger>
             <TabsTrigger value="website">
-              <File className="mr-2 h-4 w-4" />
+              <LinkIcon className="mr-2 h-4 w-4" />
               Website URL
             </TabsTrigger>
           </TabsList>

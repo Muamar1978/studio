@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from 'react';
-import QRCode from 'qrcode';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -9,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { QrCode as QrCodeIcon, Download, Save, AlertCircle } from "lucide-react";
 import Image from 'next/image';
 import { CardFooter } from '@/components/ui/card';
+import { generateQrCodeWithLogo } from '@/lib/qr-code-utils';
 
 interface WebsiteUrlTabProps {
     onQrGenerated: (dataUrl: string, link: string) => void;
@@ -21,7 +21,23 @@ export function WebsiteUrlTab({ onQrGenerated, qrCodeDataUrl, directLink }: Webs
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [qrForegroundColor, setQrForegroundColor] = useState<string>('#000000');
-  const qrBackgroundColor = '#FFFFFF'; // Fixed white background
+  const [customLogo, setCustomLogo] = useState<File | null>(null);
+
+  const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 1024 * 1024) { // 1MB limit
+        setError("Logo image must be less than 1MB.");
+        e.target.value = ''; // Reset file input
+        return;
+      }
+      setCustomLogo(file);
+      onQrGenerated('', '');
+      setError('');
+    } else {
+        setCustomLogo(null);
+    }
+  };
 
   const isValidUrl = (urlString: string) => {
     try {
@@ -50,79 +66,13 @@ export function WebsiteUrlTab({ onQrGenerated, qrCodeDataUrl, directLink }: Webs
         return;
     }
 
-    const newDirectLink = fileLink;
-
     try {
-      const qrSize = 256;
-      const baseQrDataUrl = await QRCode.toDataURL(newDirectLink, {
-        errorCorrectionLevel: 'H', 
-        type: 'image/png',
-        width: qrSize,
-        margin: 1, 
-        color: {
-          dark: qrForegroundColor, 
-          light: qrBackgroundColor,
-        }
-      });
-
-      const canvas = document.createElement('canvas');
-      canvas.width = qrSize;
-      canvas.height = qrSize;
-      const ctx = canvas.getContext('2d');
-
-      if (!ctx) {
-        setError('Failed to get canvas context for adding logo.');
+      const finalQrUrl = await generateQrCodeWithLogo(fileLink, qrForegroundColor, customLogo);
+      onQrGenerated(finalQrUrl, fileLink);
+    } catch (err: any) {
+        setError(`Failed to generate QR code: ${err.message}`);
+    } finally {
         setIsLoading(false);
-        return;
-      }
-
-      const qrImg = new window.Image();
-      qrImg.onload = () => {
-        ctx.drawImage(qrImg, 0, 0, qrSize, qrSize);
-        const logoText = "NTU"; 
-        const logoVisualDiameterFactor = 0.25; 
-        const logoVisualDiameter = qrSize * logoVisualDiameterFactor;
-        const logoVisualRadius = logoVisualDiameter / 2;
-        const paddingAroundLogoVisual = 6; 
-        const totalClearRadius = logoVisualRadius + paddingAroundLogoVisual; 
-        const centerX = qrSize / 2;
-        const centerY = qrSize / 2;
-
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, totalClearRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; 
-        ctx.fill();
-        
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, logoVisualRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'white'; 
-        ctx.fill();
-        
-        ctx.strokeStyle = '#333'; 
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        
-        const fontSizeFactor = 0.35; 
-        const fontSize = logoVisualDiameter * fontSizeFactor; 
-        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-        ctx.fillStyle = qrForegroundColor; 
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(logoText, centerX, centerY);
-        
-        const finalQrUrl = canvas.toDataURL('image/png');
-        onQrGenerated(finalQrUrl, newDirectLink);
-        setIsLoading(false);
-      };
-      qrImg.onerror = () => {
-        setError('Failed to process QR image for logo. Please try again.');
-        setIsLoading(false);
-      };
-      qrImg.src = baseQrDataUrl;
-
-    } catch (err) {
-      setError('Failed to generate QR code. Please try again.');
-      setIsLoading(false);
     }
   };
 
@@ -130,7 +80,7 @@ export function WebsiteUrlTab({ onQrGenerated, qrCodeDataUrl, directLink }: Webs
     if (!qrCodeDataUrl) return;
     const link = document.createElement('a');
     link.href = qrCodeDataUrl;
-    link.download = 'alatar-qrcode-website-ntu.png'; 
+    link.download = 'alatar-qrcode-website.png'; 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -157,16 +107,29 @@ export function WebsiteUrlTab({ onQrGenerated, qrCodeDataUrl, directLink }: Webs
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="qr-foreground-color-direct">QR Foreground Color</Label>
-          <Input
-            id="qr-foreground-color-direct"
-            type="color"
-            value={qrForegroundColor}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setQrForegroundColor(e.target.value)}
-            className="w-full h-10 p-1"
-            aria-label="QR Code Foreground Color Picker"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+            <Label htmlFor="qr-foreground-color-direct">QR Foreground Color</Label>
+            <Input
+                id="qr-foreground-color-direct"
+                type="color"
+                value={qrForegroundColor}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setQrForegroundColor(e.target.value)}
+                className="w-full h-10 p-1"
+                aria-label="QR Code Foreground Color Picker"
+            />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="logo-upload-website">Custom Logo (optional)</Label>
+                <Input
+                    id="logo-upload-website"
+                    type="file"
+                    accept="image/png, image/jpeg, image/gif, image/svg+xml"
+                    onChange={handleLogoChange}
+                    className="w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-muted file:px-2 file:py-1 file:text-muted-foreground file:hover:bg-muted/80"
+                    aria-label="Custom Logo Uploader"
+                />
+            </div>
         </div>
         
         <Button type="submit" className="w-full" disabled={isLoading}>
@@ -196,7 +159,7 @@ export function WebsiteUrlTab({ onQrGenerated, qrCodeDataUrl, directLink }: Webs
           <div className="flex justify-center">
             <Image 
               src={qrCodeDataUrl} 
-              alt="Generated QR Code with NTU logo for a website URL" 
+              alt="Generated QR Code"
               width={256} 
               height={256} 
               className="rounded-md shadow-md border-2 border-primary p-1 bg-white"
