@@ -185,6 +185,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
       <form onSubmit={generateQrCode} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="gdrive-link">Google Drive File Link</Label>
+          <p className="text-sm text-muted-foreground">PDF, Image, Microsoft DOCX and Google Documents Accepted</p>
           <Input
             id="gdrive-link"
             type="url"
