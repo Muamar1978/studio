@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QrCode as QrCodeIcon, Link, File } from "lucide-react";
 import { GoogleDriveTab } from './google-drive-tab';
-import { DirectLinkTab } from './direct-link-tab';
+import { WebsiteUrlTab } from './website-url-tab';
 
 export function QrCodeGenerator() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
@@ -40,16 +40,16 @@ export function QrCodeGenerator() {
               <Link className="mr-2 h-4 w-4" />
               Google Drive
             </TabsTrigger>
-            <TabsTrigger value="direct">
+            <TabsTrigger value="website">
               <File className="mr-2 h-4 w-4" />
-              Direct Link
+              Website URL
             </TabsTrigger>
           </TabsList>
           <TabsContent value="gdrive">
             <GoogleDriveTab onQrGenerated={handleQrGenerated} qrCodeDataUrl={qrCodeDataUrl} directLink={directLink} />
           </TabsContent>
-          <TabsContent value="direct">
-            <DirectLinkTab onQrGenerated={handleQrGenerated} qrCodeDataUrl={qrCodeDataUrl} directLink={directLink} />
+          <TabsContent value="website">
+            <WebsiteUrlTab onQrGenerated={handleQrGenerated} qrCodeDataUrl={qrCodeDataUrl} directLink={directLink} />
           </TabsContent>
         </Tabs>
       </CardContent>
