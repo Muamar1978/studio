@@ -61,7 +61,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
       return;
     }
 
-    const newDirectLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    const newDirectLink = `https://drive.google.com/uc?export=view&id=${fileId}&confirm=t`;
 
     try {
       const qrSize = 256;
