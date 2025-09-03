@@ -28,17 +28,21 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
     try {
       const parsedUrl = new URL(url);
       const hostname = parsedUrl.hostname;
+      const pathname = parsedUrl.pathname;
+
+      // Handle folder links
+      if (pathname.startsWith('/drive/folders/')) {
+        return { link: url, error: null };
+      }
 
       let fileId: string | null = null;
       let newDirectLink: string | null = null;
       
-      // Regex for file/d/ and docs/document/d/ etc.
       const fileIdRegex = /\/d\/([a-zA-Z0-9_-]+)/;
       const match = url.match(fileIdRegex);
       if (match && match[1]) {
         fileId = match[1];
       } else {
-        // Fallback for ?id= parameter
         const idParam = parsedUrl.searchParams.get('id');
         if (idParam) {
           fileId = idParam;
@@ -46,21 +50,20 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
       }
 
       if (!fileId) {
-        return { link: null, error: 'Could not extract a valid File ID from the URL.' };
+        return { link: null, error: 'Could not extract a valid File or Folder ID from the URL.' };
       }
 
       if (hostname === 'docs.google.com') {
-        if (parsedUrl.pathname.startsWith('/document')) {
+        if (pathname.startsWith('/document')) {
           newDirectLink = `https://docs.google.com/document/d/${fileId}/export?format=docx`;
-        } else if (parsedUrl.pathname.startsWith('/spreadsheets')) {
+        } else if (pathname.startsWith('/spreadsheets')) {
           newDirectLink = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
-        } else if (parsedUrl.pathname.startsWith('/presentation')) {
+        } else if (pathname.startsWith('/presentation')) {
           newDirectLink = `https://docs.google.com/presentation/d/${fileId}/export?format=pptx`;
         }
       }
 
-      // For standard drive.google.com links (for uploaded files like PDF, images, existing docx)
-      if (hostname === 'drive.google.com' && parsedUrl.pathname.startsWith('/file')) {
+      if (hostname === 'drive.google.com' && pathname.startsWith('/file')) {
         newDirectLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
       }
       
@@ -68,7 +71,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
         return { link: newDirectLink, error: null };
       }
 
-      return { link: null, error: 'Unsupported Google Drive link format. Please use a valid shareable link from Google Drive, Docs, Sheets, or Slides.' };
+      return { link: null, error: 'Unsupported Google Drive link format. Please use a valid shareable link for a file or folder.' };
 
     } catch (e) {
       return { link: null, error: 'Invalid URL provided.' };
@@ -91,7 +94,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
     const { link: newDirectLink, error: linkError } = generateDirectLink(gdriveLink);
 
     if (linkError || !newDirectLink) {
-      setError(linkError || 'Invalid Google Drive link or unable to extract file ID. Please use a valid shareable link.');
+      setError(linkError || 'Invalid Google Drive link. Please use a valid shareable link for a file or folder.');
       setIsLoading(false);
       return;
     }
@@ -184,8 +187,8 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
     <div className="pt-6">
       <form onSubmit={generateQrCode} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="gdrive-link">Google Drive File Link</Label>
-          <p className="text-sm text-muted-foreground">PDF, Image, Microsoft DOCX and Google Documents Accepted</p>
+          <Label htmlFor="gdrive-link">Google Drive File or Folder Link</Label>
+          <p className="text-sm text-muted-foreground">Files (PDF, Image, DOCX) will be direct downloads. Folders will open in browser.</p>
           <Input
             id="gdrive-link"
             type="url"
@@ -197,7 +200,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
                 setError('');
             }}
             required
-            aria-label="Google Drive File Link Input"
+            aria-label="Google Drive File or Folder Link Input"
             className="focus:ring-primary focus:border-primary"
           />
         </div>
@@ -249,7 +252,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
             />
           </div>
           <p className="text-xs text-muted-foreground break-all">
-            Direct Link: <a href={directLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{directLink}</a>
+            Link: <a href={directLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{directLink}</a>
           </p>
         </div>
       )}
@@ -265,7 +268,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
             <Button asChild variant="secondary" className="w-full sm:w-auto">
               <a href={directLink} target="_blank" rel="noopener noreferrer">
                 <Download className="mr-2 h-5 w-5" />
-                Download File
+                {directLink.includes('/drive/folders/') ? 'Open Folder' : 'Download File'}
               </a>
             </Button>
           )}
