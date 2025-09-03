@@ -24,22 +24,57 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
   const [qrForegroundColor, setQrForegroundColor] = useState<string>('#000000');
   const qrBackgroundColor = '#FFFFFF'; // Fixed white background
 
-  const extractFileId = (url: string): string | null => {
+  const generateDirectLink = (url: string): { link: string | null; error: string | null } => {
     try {
       const parsedUrl = new URL(url);
-      if (parsedUrl.hostname !== 'drive.google.com') {
-        return null;
+      const hostname = parsedUrl.hostname;
+
+      let fileId: string | null = null;
+      let newDirectLink: string | null = null;
+      
+      // Regex for file/d/ and docs/document/d/ etc.
+      const fileIdRegex = /\/d\/([a-zA-Z0-9_-]+)/;
+      const match = url.match(fileIdRegex);
+      if (match && match[1]) {
+        fileId = match[1];
+      } else {
+        // Fallback for ?id= parameter
+        const idParam = parsedUrl.searchParams.get('id');
+        if (idParam) {
+          fileId = idParam;
+        }
       }
-      const regex = /\/file\/d\/([a-zA-Z0-9_-]+)|[?&]id=([a-zA-Z0-9_-]+)/;
-      const match = url.match(regex);
-      if (match) {
-        return match[1] || match[2] || null;
+
+      if (!fileId) {
+        return { link: null, error: 'Could not extract a valid File ID from the URL.' };
       }
-      return null;
+
+      if (hostname === 'docs.google.com') {
+        if (parsedUrl.pathname.startsWith('/document')) {
+          newDirectLink = `https://docs.google.com/document/d/${fileId}/export?format=docx`;
+        } else if (parsedUrl.pathname.startsWith('/spreadsheets')) {
+          newDirectLink = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+        } else if (parsedUrl.pathname.startsWith('/presentation')) {
+          newDirectLink = `https://docs.google.com/presentation/d/${fileId}/export?format=pptx`;
+        }
+      }
+
+      // For standard drive.google.com links (for uploaded files like PDF, images, existing docx)
+      if (hostname === 'drive.google.com' && parsedUrl.pathname.startsWith('/file')) {
+        newDirectLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+      }
+      
+      if (newDirectLink) {
+        return { link: newDirectLink, error: null };
+      }
+
+      return { link: null, error: 'Unsupported Google Drive link format. Please use a valid shareable link from Google Drive, Docs, Sheets, or Slides.' };
+
     } catch (e) {
-      return null;
+      return { link: null, error: 'Invalid URL provided.' };
     }
   };
+
 
   const generateQrCode = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,15 +88,13 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
       return;
     }
 
-    const fileId = extractFileId(gdriveLink);
+    const { link: newDirectLink, error: linkError } = generateDirectLink(gdriveLink);
 
-    if (!fileId) {
-      setError('Invalid Google Drive link or unable to extract file ID. Please use a valid shareable link.');
+    if (linkError || !newDirectLink) {
+      setError(linkError || 'Invalid Google Drive link or unable to extract file ID. Please use a valid shareable link.');
       setIsLoading(false);
       return;
     }
-
-    const newDirectLink = `https://drive.google.com/uc?export=view&id=${fileId}&confirm=t`;
 
     try {
       const qrSize = 256;
@@ -155,7 +188,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
           <Input
             id="gdrive-link"
             type="url"
-            placeholder="https://drive.google.com/file/d/..."
+            placeholder="https://docs.google.com/document/d/..."
             value={gdriveLink}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 setGdriveLink(e.target.value);
@@ -223,7 +256,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
         <CardFooter className="flex flex-col sm:flex-row gap-3 mt-4 justify-center px-0">
           {qrCodeDataUrl && (
             <Button variant="outline" onClick={handleSaveQrCode} className="w-full sm:w-auto">
-            <Save className="mr-2 h-5 w-5" />
+            <Save className="mr-2 h-5 w-s5" />
             Save QR Code (PNG)
           </Button>
           )}
