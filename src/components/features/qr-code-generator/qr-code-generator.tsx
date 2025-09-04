@@ -30,7 +30,7 @@ export function QrCodeGenerator() {
           <CardTitle className="text-3xl font-bold">Alatar QR Generator</CardTitle>
         </div>
         <CardDescription className="text-muted-foreground">
-          Developed by Muamar Almani, MIE Department, TECK, NTU, 2025.
+          Generate QR codes for Google Drive files, folders, and website URLs.
         </CardDescription>
       </CardHeader>
       <CardContent>
