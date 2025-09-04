@@ -109,7 +109,7 @@ export function WebsiteUrlTab({ onQrGenerated, qrCodeDataUrl, directLink }: Webs
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-            <Label htmlFor="qr-foreground-color-direct">QR Foreground Color</Label>
+            <Label htmlFor="qr-foreground-color-direct">QR Foreground Color (optional)</Label>
             <Input
                 id="qr-foreground-color-direct"
                 type="color"

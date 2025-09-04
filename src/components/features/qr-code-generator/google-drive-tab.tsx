@@ -152,7 +152,7 @@ export function GoogleDriveTab({ onQrGenerated, qrCodeDataUrl, directLink }: Goo
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="qr-foreground-color-gdrive">QR Foreground Color</Label>
+              <Label htmlFor="qr-foreground-color-gdrive">QR Foreground Color (optional)</Label>
               <Input
                 id="qr-foreground-color-gdrive"
                 type="color"
