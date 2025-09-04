@@ -90,7 +90,7 @@ export function WebsiteUrlTab({ onQrGenerated, qrCodeDataUrl, directLink }: Webs
     <div className="pt-6">
       <form onSubmit={generateQrCode} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="website-url">Website URL</Label>
+          <p className="text-sm text-muted-foreground">Enter any valid website URL to generate a QR code.</p>
           <Input
             id="website-url"
             type="url"
